@@ -1,5 +1,8 @@
 import React from 'react'
-import { View, Text, StyleSheet, Image } from 'react-native'
+import { View, Text, StyleSheet, Image, ScrollView } from 'react-native'
+
+import { ScreenOrientation } from 'expo' //This is an AWESOME API that expo gives you that allows you to detect screen orientation changes and even lock screen rotation on particular screens even if you have "orientation": "default" in your app.json. https://docs.expo.io/versions/latest/sdk/screen-orientation/
+//I tested this out below running  ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT) on StartGameScreen and then ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.ALL) here in this component. This will come in handy if I need to force a landscape view for spreadsheets or something on some particular screens but need to force portrait or allow both orientations on other screens.
 
 import { BodyText, TitleText, MainButton } from '../reusables'
 
@@ -15,17 +18,21 @@ import config from '../../config'
 
 const GameOverScreen = props => {
 
-    return (
-        <View style={styles.screen}>
-            <TitleText style={styles.gameOverText}>GAME OVER</TitleText>
-            <Image
-                source={require('../../assets/success.png')}
-                style={styles.image}
-                resizeMode='cover'
-                fadeDuration={1000}/>
-            <BodyText style={styles.gameOverDetails}>The number was: <Text style={styles.highLight}>{props.userNumber}</Text> and it took your phone <Text style={styles.highLight}>{props.guessRounds}</Text> rounds to guess it.</BodyText>
-            <MainButton stylingss={styles.button} onPressingss={props.startNewGameHandler}>New Game</MainButton>
-        </View>
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.ALL)
+
+    return ( //Wrapping this in a ScrollView as an after thought in the event that a device MIGHT not have enough height to display everything. Originally was just such a precautionary measure but now that I've changed "orientation": "default" in app.json I'm doing it so that I can access everything while the screen is horizontal.
+        <ScrollView>
+            <View style={styles.screen}>
+                <TitleText style={styles.gameOverText}>GAME OVER</TitleText>
+                <Image
+                    source={require('../../assets/success.png')}
+                    style={styles.image}
+                    resizeMode='cover'
+                    fadeDuration={1000}/>
+                <BodyText style={styles.gameOverDetails}>The number was: <Text style={styles.highLight}>{props.userNumber}</Text> and it took your phone <Text style={styles.highLight}>{props.guessRounds}</Text> rounds to guess it.</BodyText>
+                <MainButton stylingss={styles.button} onPressingss={props.startNewGameHandler}>New Game</MainButton>
+            </View>
+        </ScrollView>
     )
 }
 
@@ -36,20 +43,20 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     image: {
-        width: 300,
-        height: 300,
-        borderRadius: 150,
-        borderColor: 'black',
+        width: config.dimensions.windowWidth * .75,
+        height: config.dimensions.windowWidth * .75,
+        borderRadius: config.dimensions.windowWidth * .75 / 2, //Border radius should be exactly half for circles otherwise you can get jagged edges on Android
+        borderColor: 'rgb(0,0,0)',
         borderWidth: 3,
         marginVertical: 30
     },
     gameOverText: {
-        fontSize: 20
+        fontSize: config.dimensions.windowHeight > 600 ? 20 : 16, //Essentially creating a breakpoint based on the height of the device
     },
     gameOverDetails: {
         textAlign: 'center',
         marginHorizontal: 20,
-        fontSize: 18
+        fontSize: config.dimensions.windowHeight > 600 ? 18 : 14 //Essentially creating a breakpoint based on the height of the device
     },
     highLight: {
         color: config.colors.mainRed,

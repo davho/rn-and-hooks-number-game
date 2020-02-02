@@ -2,7 +2,12 @@ import React, { useState, useRef, useEffect } from 'react'
 import { View, Text, StyleSheet, Alert, ScrollView, FlatList } from 'react-native'
 import { Ionicons } from '@expo/vector-icons' //All icons here -- https://expo.github.io/vector-icons/
 
+import { ScreenOrientation } from 'expo' //This is an AWESOME API that expo gives you that allows you to detect screen orientation changes and even lock screen rotation on particular screens even if you have "orientation": "default" in your app.json. https://docs.expo.io/versions/latest/sdk/screen-orientation/
+//I tested this out below running ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT) and release the lock on the GameOverScreen by running ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.ALL)
+
 import { NumberContainer, Card, MainButton, BodyText } from '../reusables'
+
+import config from '../../config'
 
 const generateRandomBetween = (min, max, exclude) => { //This function, generateRandomBetween, doesn't need access to state nor anything in the GameScreen component so we can just leave it here outside the component.
     min = Math.ceil(min)
@@ -33,6 +38,8 @@ const renderListItemForFlatList = (listLength, itemData) => { //Have to use a di
 //         }
 
 const GameScreen = props => {
+
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT)
 
     const firstGuess = generateRandomBetween(1, 100, props.userNumber) //Apparently, the way useState works, even though firstGuess is set to a different number everytime, it will not mutate the first element in the array of our pastGuesses everytime GameScreen component renders.
 
@@ -101,13 +108,13 @@ const styles = StyleSheet.create({
     buttonContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: 20,
+        marginTop: config.dimensions.windowHeight > 600 ? 20 : 10, //Essentially creating a breakpoint based on the height of the device
         width: 300,
         maxWidth: '80%'
     },
     listContainer: {
         flex: 1, /* For wrapping a ScrollView in a View, your ScrollView won't work on Android unless you give its parent view a flex of 1! On iOS it doesn't matter either way.  */
-        width: '80%'
+        width: config.dimensions.windowHeight > 600 ? '80%' : '90%', //Essentially creating a breakpoint based on the height of the device
     },
     list: {
         flexGrow: 1, //Like flex, flexGrow instructs the container to be able to take up as much space as it can, but unlike flex it says to keep the other behavior it gets from ScrollView or FlatList

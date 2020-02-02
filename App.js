@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View, SafeAreaView } from 'react-native'
 import * as Font from 'expo-font' //This package should be included in Expo by default but you can run expo install expo-font to be sure
 import { AppLoading } from 'expo' //This package will allow you to prolong a task until another task is done. Must be used in order to load fonts in expo, which need to be loaded with loadAsync() and don't forget to import this with the {} other wise you'll get an Invariant Violation error
 
 //Check these out UI libraries out for some great prestyled, fully responsive cross-platform components -- https://docs.expo.io/versions/latest/guides/userinterface/
 //FOR DATA TABLES: https://callstack.github.io/react-native-paper/data-table.html
+
+//SafeAreaView is a wrapping view that marks the safe area in which we can position our content to avoid physical notches, such as that on the iPhone 10 and other models, and operating system widgets and menus. You simply take it and wrap it at the top most level around your app as demonstrated. It simply replaces the View that was there before wrapping the content and takes styles just like a regular view. Note: In the case of building an app with React Navigation you would do something similar from the React Navigation library, not from within React Native using SafeAreaView.
 
 import { StartGameScreen, GameScreen, GameOverScreen } from './components/screens'
 
@@ -53,10 +55,10 @@ export default function App() {
     }
     //Then we return our dummy Header, of course, and our let called content, which will show whichever screen we need.
     return (
-        <View style={styles.screen}>
+        <SafeAreaView style={styles.screen}>
             <Header title='Guess a number'/>
             {content}
-        </View>
+        </SafeAreaView>
     )
 }
 

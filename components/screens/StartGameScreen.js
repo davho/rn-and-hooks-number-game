@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { View, Text, StyleSheet, Button, Keyboard, Alert, TouchableWithoutFeedback } from 'react-native'
+import { View, Text, StyleSheet, Button, Keyboard, Alert, TouchableWithoutFeedback, ScrollView, KeyboardAvoidingView } from 'react-native'
 
 import { Input, Card, NumberContainer, TitleText } from '../reusables'
 
@@ -49,43 +49,47 @@ const StartGameScreen = props => {
         )
     }
 
-    return (
-        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-            <View style={styles.screen}>
-                <TitleText style={styles.title}>Start a New Game!</TitleText>
-                <Card style={styles.card}>
-                    <Text style={styles.title}>Select a Number</Text>
+    return ( //Wrapped the entire component in a ScrollView after switching to "orientation": "default" in app.json so that when the phone is horizontal nothing gets cut off. Also, then wrapped the rest of the component in a KeyboardAvoidingView setting behavior to 'position' and keyboardVerticalOffset to 10, which dicatates that the contents of the component should move upwward 10px when the keyboard is in view. You can also set behavior to 'padding' so that a padding gets added to the bottom to slide everything up, and last but not least you can set it to height. Typically on iOS 'position' works best and on Android 'padding' works best. I believe that on some Android devices (not necessarily some android versions?) opening the keyboard opens up a default blank screen that allows you to type freely until you hit "done" after which what you typed is populated in the field you were trying to type in.
+        <ScrollView>
+            <KeyboardAvoidingView behavior='position' keyboardVerticalOffset={90}>
+                <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+                    <View style={styles.screen}>
+                        <TitleText style={styles.title}>Start a New Game!</TitleText>
+                        <Card style={styles.card}>
+                            <Text style={styles.title}>Select a Number</Text>
 
-                    <Input
-                        style={styles.inputField}
-                        onChangeText={numberInputHandler}
-                        value={enteredValue}
-                        blurOnSubmit
-                        autoCapitalize='none'
-                        autoCorrect={false}
-                        keyboardType='number-pad'
-                        maxLength={2} />
+                            <Input
+                                style={styles.inputField}
+                                onChangeText={numberInputHandler}
+                                value={enteredValue}
+                                blurOnSubmit
+                                autoCapitalize='none'
+                                autoCorrect={false}
+                                keyboardType='number-pad'
+                                maxLength={2} />
 
-                    <View style={styles.buttonContainer}>
-                        <View style={styles.button} >
-                            <Button
-                                color={config.colors.mainRed}
-                                title='Reset'
-                                onPress={resetInputHandler}/>
-                        </View>
-                        <View style={styles.button} >
-                            <Button
-                                color={config.colors.mainPurp}
-                                title='Confirm'
-                                onPress={hasUserConfirmedHandler}/>
-                        </View>
+                            <View style={styles.buttonContainer}>
+                                <View style={styles.button} >
+                                    <Button
+                                        color={config.colors.mainRed}
+                                        title='Reset'
+                                        onPress={resetInputHandler}/>
+                                </View>
+                                <View style={styles.button} >
+                                    <Button
+                                        color={config.colors.mainPurp}
+                                        title='Confirm'
+                                        onPress={hasUserConfirmedHandler}/>
+                                </View>
+                            </View>
+                        </Card>
+
+                            {confirmedOutput}
+
                     </View>
-                </Card>
-
-                    {confirmedOutput}
-
-            </View>
-        </TouchableWithoutFeedback>
+                </TouchableWithoutFeedback>
+            </KeyboardAvoidingView>
+        </ScrollView>
     )
 }
 
@@ -101,8 +105,9 @@ const styles = StyleSheet.create({
         marginVertical: 10
     },
     card: {
-        width: 300,
-        maxWidth: '80%',
+        width: '80%',
+        minWidth: 300, //Setting a minWidth of 300 and an otherwise width of 80% is good practice to making sure that things render well on these unusual widthed phones (the min for which I belive the widths are 320)
+        maxWidth: '95%', //Setting a maxWidth of 95% ensures that the card never bleeds outside the phone.
         alignItems: 'center'
     },
     inputField: {
@@ -116,7 +121,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15
     },
     button:  {
-        width: 90,
+        width: config.dimensions.windowWidth / 4, //Note that if you have "orientation": "default" in your app.json and the app loads while the device is horizontal you're going to get "opposite" values for width and height. The way to account for this is simply to calculate dimensions within the component, put an event listener on Dimensions.addEventListener('change', someFunction) and make the function something that updates a hook with that dimension's value. Then just set the style properties that depend on those values inline. So you'd set up 2 hooks, one for width and one for height, i.e. [availableDeviceHeight, setAvailableDeviceHeight] and [availableDeviceWidth, setAvailableDeviceWidth]. You should also use useEffect to clean up the event listener each time there's a change to dimensions so that you don't have numerous event listeners running. There may also be a way to export this to a non visual component instead of creating this functionality each time for each component.
         backgroundColor: 'rgb(200,200,200)',
         borderRadius: 20
     },
